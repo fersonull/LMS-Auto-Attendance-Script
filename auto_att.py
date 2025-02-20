@@ -3,6 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait as webWait
 from selenium.webdriver.support import expected_conditions as EC
+from datetime import datetime as dt
 import schedule
 import time
 
@@ -10,9 +11,21 @@ import time
 email = "youremail@gmail.com";
 password = "yourpass123";
 
+print(r"""
+                _                _   _                 _ 
+     /\        | |              | | | |               | |
+    /  \  _   _| |_ ___     __ _| |_| |_ ___ _ __   __| |
+   / /\ \| | | | __/ _ \   / _` | __| __/ _ \ '_ \ / _` |
+  / ____ \ |_| | || (_) | | (_| | |_| ||  __/ | | | (_| |
+ /_/    \_\__,_|\__\___/   \__,_|\__|\__\___|_| |_|\__,_|
+                                                                                                               
+""")
+
 print("Auto Attendance Script successfuly loaded.")
 time.sleep(2)
-print("Detecting your your time and schedule, don't close the program...")
+print("Reading your time and schedule... don't close the program.")
+
+
 
 def waitURL(driver, time, link):
     webWait(driver, time).until(EC.url_to_be(
@@ -89,11 +102,17 @@ def auto_attendance(day, ind):
             for i, button in enumerate(buttons):
                 if button.text == "Available":
                     button.click()
-                    print("Successfuly Attended your Subject: " + subName)
+
+                    hours = dt.now().hour
+                    mins = dt.now().minute
+
+                    print(f"\nSuccesfuly Attended your Subject: {subName} at {hours}:{mins:02d}")
                     time.sleep(3)
                     return
             
-            print("No Available Lessons for Subject: " + subName)
+            hours = dt.now().hour
+            mins = dt.now().minute
+            print(f"\nThere are no Available Lessons on Subject: {subName}, {hours}:{mins:02d}\n")
             time.sleep(2)
             driver.close()
 
@@ -115,42 +134,47 @@ def auto_attendance(day, ind):
             for i, button in enumerate(buttons):
                 if button.text == "Available":
                     button.click()
-                    print("Successfuly Attended your Subject: " + subName)
+
+                    hours = dt.now().hour
+                    mins = dt.now().minute
+                    print(f"\nSuccesfuly Attended your Subject: {subName} at {hours}:{mins:02d}\n")
                     time.sleep(3)
                     return
             
-            print("No Available Lessons for Subject: " + subName)
+            hours = dt.now().hour
+            mins = dt.now().minute
+            print(f"\nThere are no Available Lessons on Subject: {subName}, {hours}:{mins:02d}\n")
             time.sleep(2)
 
             driver.close()
 
 # Monday scheds
-schedule.every().monday.at("09:10").do(lambda: auto_attendance("full", 0))
-schedule.every().monday.at("10:10").do(lambda: auto_attendance("full", 1))
-schedule.every().monday.at("11:10").do(lambda: auto_attendance("full", 2))
-schedule.every().monday.at("14:10").do(lambda: auto_attendance("full", 3))
-schedule.every().monday.at("15:10").do(lambda: auto_attendance("full", 4))
-schedule.every().monday.at("16:10").do(lambda: auto_attendance("full", 5))
+schedule.every().monday.at("09:08").do(lambda: auto_attendance("full", 0))
+schedule.every().monday.at("10:08").do(lambda: auto_attendance("full", 1))
+schedule.every().monday.at("11:08").do(lambda: auto_attendance("full", 2))
+schedule.every().monday.at("14:08").do(lambda: auto_attendance("full", 3))
+schedule.every().monday.at("15:08").do(lambda: auto_attendance("full", 4))
+schedule.every().monday.at("16:08").do(lambda: auto_attendance("full", 5))
 
 # Tuesday scheds
 schedule.every().tuesday.at("10:10").do(lambda: auto_attendance("half", 0))
 
 # Wednesday scheds
-schedule.every().wednesday.at("09:10").do(lambda: auto_attendance("full", 0))
-schedule.every().wednesday.at("09:10").do(lambda: auto_attendance("full", 0))
-schedule.every().wednesday.at("10:10").do(lambda: auto_attendance("full", 1))
-schedule.every().wednesday.at("11:10").do(lambda: auto_attendance("full", 2))
-schedule.every().wednesday.at("14:10").do(lambda: auto_attendance("full", 3))
-schedule.every().wednesday.at("15:10").do(lambda: auto_attendance("full", 4))
-schedule.every().wednesday.at("16:10").do(lambda: auto_attendance("full", 5))
+schedule.every().wednesday.at("09:08").do(lambda: auto_attendance("full", 0))
+schedule.every().wednesday.at("09:08").do(lambda: auto_attendance("full", 0))
+schedule.every().wednesday.at("10:08").do(lambda: auto_attendance("full", 1))
+schedule.every().wednesday.at("11:08").do(lambda: auto_attendance("full", 2))
+schedule.every().wednesday.at("14:08").do(lambda: auto_attendance("full", 3))
+schedule.every().wednesday.at("15:08").do(lambda: auto_attendance("full", 4))
+schedule.every().wednesday.at("16:08").do(lambda: auto_attendance("full", 5))
 
-#Friday scheds 
-schedule.every().friday.at("09:10").do(lambda: auto_attendance("full", 0))
-schedule.every().friday.at("10:10").do(lambda: auto_attendance("full", 1))
-schedule.every().friday.at("11:10").do(lambda: auto_attendance("full", 2))
-schedule.every().friday.at("14:10").do(lambda: auto_attendance("full", 3))
-schedule.every().friday.at("15:10").do(lambda: auto_attendance("full", 4))
-schedule.every().friday.at("16:10").do(lambda: auto_attendance("full", 5))
+# Friday scheds 
+schedule.every().friday.at("10:08").do(lambda: auto_attendance("full", 1))
+schedule.every().friday.at("09:08").do(lambda: auto_attendance("full", 0))
+schedule.every().friday.at("11:08").do(lambda: auto_attendance("full", 2))
+schedule.every().friday.at("14:08").do(lambda: auto_attendance("full", 3))
+schedule.every().thursday.at("15:08").do(lambda: auto_attendance("full", 4))
+schedule.every().thursday.at("16:08").do(lambda: auto_attendance("full", 5))
 
 
 while True:
