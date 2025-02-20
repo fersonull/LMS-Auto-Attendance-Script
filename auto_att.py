@@ -6,6 +6,10 @@ from selenium.webdriver.support import expected_conditions as EC
 import schedule
 import time
 
+# paste your email and password inside.
+email = "";
+password = "";
+
 def waitURL(driver, time, link):
     webWait(driver, time).until(EC.url_to_be(
         link
@@ -27,8 +31,8 @@ def auto_attendance(day, ind):
 
     time.sleep(2)
 
-    emailF.send_keys("your_email")
-    passwordF.send_keys("your_pass")
+    emailF.send_keys(email)
+    passwordF.send_keys(password)
     loginBtn.send_keys(Keys.RETURN)
 
     waitURL(driver, 20, "https://pmftci.com/college")
