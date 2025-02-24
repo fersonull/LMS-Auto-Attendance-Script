@@ -3,13 +3,17 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait as webWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
 from datetime import datetime as dt
 import schedule
 import time
+from colorama import Fore, Style, init
+
+init(autoreset=True)
 
 # paste your email and password inside.
-email = "youremail@gmail.com";
-password = "yourpass123";
+email = "culaspero@gmail.com";
+password = "bagongpassword";
 
 print(r"""
                 _                _   _                 _ 
@@ -21,9 +25,9 @@ print(r"""
                                                                                                                
 """)
 
-print("Auto Attendance Script successfuly loaded.")
+print(Fore.GREEN + "Auto Attendance Script Successfuly Loaded.")
 time.sleep(2)
-print("Reading your time and schedule... don't close the program.")
+print(Fore.LIGHTBLUE_EX + "Reading your Schedules... Don't close the Program.")
 
 
 
@@ -31,6 +35,9 @@ def waitURL(driver, time, link):
     webWait(driver, time).until(EC.url_to_be(
         link
     ))
+ 
+def webInv(driver, time, elem):
+    webWait(driver, time).until(EC.invisibility_of_element(elem))
 
 
 def auto_attendance(day, ind):
@@ -97,24 +104,47 @@ def auto_attendance(day, ind):
             waitURL(driver, 20, sub)
             time.sleep(2)
 
-            buttons = driver.find_elements(By.TAG_NAME, "button")
+            hours = dt.now().hour
+            mins = dt.now().minute
+
+            print(f"\n[{hours}:{mins:02d}] {Fore.GREEN}Subject: {subName} Successfuly Loaded. ")
+            time.sleep(1)
+            print(f"{Fore.LIGHTBLUE_EX}Waiting for Lesson to be Published...")
             
-            for i, button in enumerate(buttons):
-                if button.text == "Available":
-                    button.click()
+            max_retries = 12
+            attempts = 0
+            lessonFound = False
+            while not lessonFound and attempts < max_retries:
+                try:
+                    attendBtn = webWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, "//button[normalize-space()='View Lesson']")))
+                    attendBtn.click()
+                    time.sleep(3)
+
+                    confirmBtn = webWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, "//button[normalize-space()='OK']")))
+                    confirmBtn.click()
+                    time.sleep(5)
+
+                    lessonFound = True
+                    hours = dt.now().hour
+                    mins = dt.now().minute
+
+                    print(f"\n[{hours}:{mins:02d}] {Fore.GREEN}Succesfuly Attended your Subject: {subName}.\n")
+                    time.sleep(2)
+                    driver.close()
+                except TimeoutException:
+                    attempts += 1
 
                     hours = dt.now().hour
                     mins = dt.now().minute
 
-                    print(f"\nSuccesfuly Attended your Subject: {subName} at {hours}:{mins:02d}")
+                    print(f"[{hours}:{mins:02d}] {Fore.RED}Lesson not Found, Refreshing Page...")
+                    driver.refresh()
                     time.sleep(3)
-                    return
-            
-            hours = dt.now().hour
-            mins = dt.now().minute
-            print(f"\nThere are no Available Lessons on Subject: {subName}, {hours}:{mins:02d}\n")
-            time.sleep(2)
-            driver.close()
+                    lessonFound = False
+
+            if not lessonFound:
+                print(f"{Fore.RED}\nMax Retries Reached. No published Lesson on Subject: {subName}.")
+                
 
         case "half":
             sub = ""
@@ -129,52 +159,72 @@ def auto_attendance(day, ind):
             waitURL(driver, 20, sub)
             time.sleep(2)
 
-            buttons = driver.find_elements(By.TAG_NAME, "button")
-            
-            for i, button in enumerate(buttons):
-                if button.text == "Available":
-                    button.click()
-
-                    hours = dt.now().hour
-                    mins = dt.now().minute
-                    print(f"\nSuccesfuly Attended your Subject: {subName} at {hours}:{mins:02d}\n")
-                    time.sleep(3)
-                    return
-            
             hours = dt.now().hour
             mins = dt.now().minute
-            print(f"\nThere are no Available Lessons on Subject: {subName}, {hours}:{mins:02d}\n")
-            time.sleep(2)
 
-            driver.close()
+            print(f"\n[{hours}:{mins:02d}] {Fore.GREEN}Subject: {subName} Successfuly Loaded. ")
+            time.sleep(1)
+            print(f"{Fore.LIGHTBLUE_EX}Waiting for Lesson to be Published...")
+
+            max_retries = 12
+            attempts = 0
+            lessonFound = False
+            while not lessonFound and attempts < max_retries:
+                try:
+                    attendBtn = webWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, "//button[normalize-space()='View Lesson']")))
+                    attendBtn.click()
+                    time.sleep(3)
+
+                    confirmBtn = webWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, "//button[normalize-space()='OK']")))
+                    confirmBtn.click()
+                    time.sleep(5)
+            
+                    lessonFound = True
+                    hours = dt.now().hour
+                    mins = dt.now().minute
+
+                    print(f"\n[{hours}:{mins:02d}] {Fore.GREEN}Succesfuly Attended your Subject: {subName}.\n")
+                    time.sleep(2)
+                    driver.close()
+                except TimeoutException:
+                    attempts += 1
+                    hours = dt.now().hour
+                    mins = dt.now().minute
+                    
+                    print(f"[{hours}:{mins:02d}] {Fore.RED}Lesson not Found, Refreshing Page...")
+                    driver.refresh()
+                    time.sleep(3)
+                    lessonFound = False
+
+            if not lessonFound:
+                print(f"{Fore.RED}\nMax Retries Reached. No published Lesson on Subject: {subName}.")
 
 # Monday scheds
-schedule.every().monday.at("09:08").do(lambda: auto_attendance("full", 0))
-schedule.every().monday.at("10:08").do(lambda: auto_attendance("full", 1))
-schedule.every().monday.at("11:08").do(lambda: auto_attendance("full", 2))
-schedule.every().monday.at("14:08").do(lambda: auto_attendance("full", 3))
-schedule.every().monday.at("15:08").do(lambda: auto_attendance("full", 4))
-schedule.every().monday.at("16:08").do(lambda: auto_attendance("full", 5))
+schedule.every().monday.at("09:00").do(lambda: auto_attendance("full", 0))
+schedule.every().monday.at("10:00").do(lambda: auto_attendance("full", 1))
+schedule.every().monday.at("11:00").do(lambda: auto_attendance("full", 2))
+schedule.every().monday.at("14:00").do(lambda: auto_attendance("full", 3))
+schedule.every().monday.at("15:00").do(lambda: auto_attendance("full", 4))
+schedule.every().monday.at("16:00").do(lambda: auto_attendance("full", 5))
 
 # Tuesday scheds
-schedule.every().tuesday.at("10:10").do(lambda: auto_attendance("half", 0))
+schedule.every().tuesday.at("10:00").do(lambda: auto_attendance("half", 0))
 
 # Wednesday scheds
-schedule.every().wednesday.at("09:08").do(lambda: auto_attendance("full", 0))
-schedule.every().wednesday.at("09:08").do(lambda: auto_attendance("full", 0))
-schedule.every().wednesday.at("10:08").do(lambda: auto_attendance("full", 1))
-schedule.every().wednesday.at("11:08").do(lambda: auto_attendance("full", 2))
-schedule.every().wednesday.at("14:08").do(lambda: auto_attendance("full", 3))
-schedule.every().wednesday.at("15:08").do(lambda: auto_attendance("full", 4))
-schedule.every().wednesday.at("16:08").do(lambda: auto_attendance("full", 5))
+schedule.every().wednesday.at("09:00").do(lambda: auto_attendance("full", 0))
+schedule.every().wednesday.at("10:00").do(lambda: auto_attendance("full", 1))
+schedule.every().wednesday.at("11:00").do(lambda: auto_attendance("full", 2))
+schedule.every().wednesday.at("14:00").do(lambda: auto_attendance("full", 3))
+schedule.every().wednesday.at("15:00").do(lambda: auto_attendance("full", 4))
+schedule.every().wednesday.at("16:00").do(lambda: auto_attendance("full", 5))
 
 # Friday scheds 
-schedule.every().friday.at("10:08").do(lambda: auto_attendance("full", 1))
-schedule.every().friday.at("09:08").do(lambda: auto_attendance("full", 0))
-schedule.every().friday.at("11:08").do(lambda: auto_attendance("full", 2))
-schedule.every().friday.at("14:08").do(lambda: auto_attendance("full", 3))
-schedule.every().thursday.at("15:08").do(lambda: auto_attendance("full", 4))
-schedule.every().thursday.at("16:08").do(lambda: auto_attendance("full", 5))
+schedule.every().friday.at("09:00").do(lambda: auto_attendance("full", 1))
+schedule.every().friday.at("10:00").do(lambda: auto_attendance("full", 0))
+schedule.every().friday.at("11:00").do(lambda: auto_attendance("full", 2))
+schedule.every().friday.at("14:00").do(lambda: auto_attendance("full", 3))
+schedule.every().friday.at("15:00").do(lambda: auto_attendance("full", 4))
+schedule.every().friday.at("16:00").do(lambda: auto_attendance("full", 5))
 
 
 while True:
