@@ -12,8 +12,8 @@ from colorama import Fore, Style, init
 init(autoreset=True)
 
 # paste your email and password inside.
-email = "culaspero@gmail.com";
-password = "bagongpassword";
+email = "youremal@gmail.com";
+password = "pass123";
 
 print(r"""
                 _                _   _                 _ 
